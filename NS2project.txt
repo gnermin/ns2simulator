@@ -1,0 +1,366 @@
+# NS2 code
+# wired.tcl – block disturbance
+
+set ns [new Simulator]
+set nd [open out.tr w]
+$ns trace-all $nd
+set namfile [open out.nam w]
+$ns namtrace-all $namfile
+set max_fragmented_size   1316
+#rtp header (12 bytes), udp header(8 bytes) and IP header (20bytes)
+set packetSize  1356
+set s1 [$ns node]
+set r1 [$ns node]
+set r2 [$ns node]
+set d1 [$ns node]
+$ns duplex-link  $s1 $r1  1000Mb   1ms DropTail
+$ns duplex-link $r1 $r2  1000Mb   1ms DropTail
+$ns duplex-link  $r2 $d1  50Mb   1ms DropTail
+set qs1r1 [[$ns link $s1 $r1] queue]
+$qs1r1 set limit_ 1500
+set qr1r2 [[$ns link $r1 $r2] queue]
+$qr1r2 set limit_ 1500
+set qr2d1 [[$ns link $r2 $d1] queue]
+$qr2d1 set limit_ 1500
+set pocetak 20.01
+set brprekida 1
+set trprekid 1.2
+set trpauze 0
+for { set i 0} { $i < $brprekida } { incr i } {   
+$ns rtmodel-at $pocetak down $s1 $r1
+set pocetak [expr $pocetak + $trprekid]
+$ns rtmodel-at $pocetak up $s1 $r1
+set pocetak [expr $pocetak +$trpauze]
+}
+set udp1 [new Agent/my_UDP]
+$ns attach-agent $s1 $udp1
+$udp1 set packetSize_ $packetSize
+$udp1 set_filename sd
+$udp1 wired
+set null1 [new Agent/myEvalvid_Sink] 
+$ns attach-agent $d1 $null1
+$ns connect $udp1 $null1
+$null1 set_filename rd
+$null1 wired
+set original_file_name OK720.st
+set trace_file_name video1.dat
+set original_file_id [open $original_file_name r]
+set trace_file_id [open $trace_file_name w]
+set pre_time 0
+while {[eof $original_file_id] == 0} {
+    gets $original_file_id current_line
+    scan $current_line "%d%s%d%d%f" no_ frametype_ length_ tmp1_ tmp2_
+    set time [expr int(($tmp2_ - $pre_time)*1000000.0)]
+
+ if { $frametype_ == "I" } {
+     set type_v 1
+     set prio_p 0
+   }  
+    if { $frametype_ == "P" } {
+      set type_v 2
+      set prio_p 0
+    }  
+   if { $frametype_ == "B" } {
+      set type_v 3
+      set prio_p 0
+    }  
+    if { $frametype_ == "H" } {
+      set type_v 1
+      set prio_p 0
+    }
+    Puts $trace_file_id "$time $length_ $type_v $prio_p $max_fragmented_size"
+    set pre_time $tmp2_
+}
+close $original_file_id
+close $trace_file_id
+set end_sim_time $tmp2_
+puts "$end_sim_time"
+set trace_file [new Tracefile]
+$trace_file filename $trace_file_name 
+set video1 [new Application/Traffic/myEvalvid]
+$video1 attach-agent $udp1
+$video1 attach-tracefile $trace_file
+$video1 wired
+proc finish {} {
+        global ns nd udp1 null1
+        $ns flush-trace
+        close $nd
+        $udp1 closefile
+        $null1 closefile 
+        puts "simulation completed"
+        exit 0
+}
+$ns at 0.0 "$video1 start"
+$ns at $end_sim_time "$video1 stop"
+$ns at [expr $end_sim_time + 1.0] "$null1 closefile"
+$ns at [expr $end_sim_time + 1.0] "finish"
+
+$ns run
+# wired.tcl – group block disturbances
+
+set ns [new Simulator]
+set nd [open out.tr w]
+$ns trace-all $nd
+set namfile [open out.nam w]
+$ns namtrace-all $namfile
+set max_fragmented_size   1316
+#rtp header (12 bytes), udp header(8 bytes) and IP header (20bytes)
+set packetSize  1356
+set s1 [$ns node]
+set r1 [$ns node]
+set r2 [$ns node]
+set d1 [$ns node]
+$ns duplex-link  $s1 $r1  1000Mb   1ms DropTail
+$ns duplex-link $r1 $r2  1000Mb   1ms DropTail
+$ns duplex-link  $r2 $d1  50Mb   1ms DropTail
+set qs1r1 [[$ns link $s1 $r1] queue]
+$qs1r1 set limit_ 1500
+set qr1r2 [[$ns link $r1 $r2] queue]
+$qr1r2 set limit_ 1500
+set qr2d1 [[$ns link $r2 $d1] queue]
+$qr2d1 set limit_ 1500
+
+set pocetak 24.21
+set brprekida 1
+set trprekid 0.51
+set trpauze 0.18
+
+for { set i 0} { $i < $brprekida } { incr i } {   
+$ns rtmodel-at $pocetak down $s1 $r1
+set pocetak [expr $pocetak + $trprekid]
+$ns rtmodel-at $pocetak up $s1 $r1
+set pocetak [expr $pocetak +$trpauze]
+}
+
+set pocetak 56.21
+set brprekida 2
+set trprekid 0.51
+set trpauze 0.18
+
+for { set i 0} { $i < $brprekida } { incr i } {   
+
+$ns rtmodel-at $pocetak down $s1 $r1
+set pocetak [expr $pocetak + $trprekid]
+$ns rtmodel-at $pocetak up $s1 $r1
+set pocetak [expr $pocetak +$trpauze]
+}
+
+set pocetak 90.11
+set brprekida 3
+set trprekid 0.51
+set trpauze 0.18
+
+for { set i 0} { $i < $brprekida } { incr i } {   
+
+$ns rtmodel-at $pocetak down $s1 $r1
+set pocetak [expr $pocetak + $trprekid]
+$ns rtmodel-at $pocetak up $s1 $r1
+set pocetak [expr $pocetak +$trpauze]
+}
+
+set pocetak 140.01
+set brprekida 4
+set trprekid 0.51
+set trpauze 0.18
+
+for { set i 0} { $i < $brprekida } { incr i } {   
+
+$ns rtmodel-at $pocetak down $s1 $r1
+set pocetak [expr $pocetak + $trprekid]
+$ns rtmodel-at $pocetak up $s1 $r1
+set pocetak [expr $pocetak +$trpauze]
+}
+
+set pocetak 175.85
+set brprekida 5
+set trprekid 0.51
+set trpauze 0.18
+
+for { set i 0} { $i < $brprekida } { incr i } {   
+
+$ns rtmodel-at $pocetak down $s1 $r1
+set pocetak [expr $pocetak + $trprekid]
+$ns rtmodel-at $pocetak up $s1 $r1
+set pocetak [expr $pocetak +$trpauze]
+}
+
+set udp1 [new Agent/my_UDP]
+$ns attach-agent $s1 $udp1
+$udp1 set packetSize_ $packetSize
+$udp1 set_filename sd
+$udp1 wired
+set null1 [new Agent/myEvalvid_Sink] 
+$ns attach-agent $d1 $null1
+$ns connect $udp1 $null1
+$null1 set_filename rd
+$null1 wired
+
+set original_file_name OK720.st
+set trace_file_name video1.dat
+set original_file_id [open $original_file_name r]
+set trace_file_id [open $trace_file_name w]
+
+set pre_time 0
+
+while {[eof $original_file_id] == 0} {
+    gets $original_file_id current_line
+    scan $current_line "%d%s%d%d%f" no_ frametype_ length_ tmp1_ tmp2_
+    set time [expr int(($tmp2_ - $pre_time)*1000000.0)]
+
+ if { $frametype_ == "I" } {
+  set type_v 1
+  set prio_p 0
+   }  
+
+    if { $frametype_ == "P" } {
+   set type_v 2
+   set prio_p 0
+    }  
+
+   if { $frametype_ == "B" } {
+   set type_v 3
+   set prio_p 0
+    }  
+
+    if { $frametype_ == "H" } {
+   set type_v 1
+   set prio_p 0
+    }
+
+    
+puts  $trace_file_id "$time $length_ $type_v $prio_p $max_fragmented_size"
+set pre_time $tmp2_
+}
+
+close $original_file_id
+close $trace_file_id
+set end_sim_time $tmp2_
+puts "$end_sim_time"
+
+set trace_file [new Tracefile]
+$trace_file filename $trace_file_name 
+set video1 [new Application/Traffic/myEvalvid]
+$video1 attach-agent $udp1
+$video1 attach-tracefile $trace_file
+$video1 wired
+proc finish {} {
+        global ns nd udp1 null1
+        $ns flush-trace
+        close $nd
+        $udp1 closefile
+        $null1 closefile 
+        puts "simulation completed"
+        exit 0
+}
+
+$ns at 0.0 "$video1 start"
+$ns at $end_sim_time "$video1 stop"
+$ns at [expr $end_sim_time + 1.0] "$null1 closefile"
+$ns at [expr $end_sim_time + 1.0] "finish"
+
+$ns run
+# wired.tcl -  Random disturbances
+set ns [new Simulator]
+
+set nd [open out.tr w]
+$ns trace-all $nd
+
+set namfile [open out.nam w]
+$ns namtrace-all $namfile
+
+set max_fragmented_size   1316
+
+#rtp header (12 bytes), udp header(8 bytes) and IP header (20bytes)
+set packetSize  1356
+
+set s1 [$ns node]
+set r1 [$ns node]
+set r2 [$ns node]
+set d1 [$ns node]
+
+$ns duplex-link  $s1 $r1  1000Mb   1ms DropTail
+$ns duplex-link $r1 $r2  1000Mb   1ms DropTail
+
+$ns duplex-link  $r2 $d1  50Mb   1ms DropTail
+set qs1r1 [[$ns link $s1 $r1] queue]
+$qs1r1 set limit_ 1500
+set qr1r2 [[$ns link $r1 $r2] queue]
+
+$qr1r2 set limit_ 1500
+set qr2d1 [[$ns link $r2 $d1] queue]
+$qr2d1 set limit_ 1500
+
+set loss_random_variable [new RandomVariable/Exponential] 
+$loss_random_variable set avg _20
+set loss_module [new ErrorModel]
+$loss_module drop-target [new Agent/Null] 
+$loss_module set rate_ 0.0001
+$loss_module ranvar $loss_random_variable
+$ns lossmodel $loss_module $s1 $r1
+
+set udp1 [new Agent/my_UDP]
+$ns attach-agent $s1 $udp1
+$udp1 set packetSize_ $packetSize
+$udp1 set_filename wired_sd
+$udp1 wired
+set null1 [new Agent/myEvalvid_Sink] 
+$ns attach-agent $d1 $null1
+$ns connect $udp1 $null1
+$null1 set_filename wired_rd
+$null1 wired
+
+set original_file_name rtp.st
+set trace_file_name video1.dat
+set original_file_id [open $original_file_name r]
+set trace_file_id [open $trace_file_name w]
+set pre_time 0
+while {[eof $original_file_id] == 0} {
+    gets $original_file_id current_line
+    scan $current_line "%d%s%d%d%f" no_ frametype_ length_ tmp1_ tmp2_
+    set time [expr int(($tmp2_ - $pre_time)*1000000.0)]
+    if { $frametype_ == "I" } {
+        set type_v 1
+        set prio_p 0
+    }  
+    if { $frametype_ == "P" } {
+        set type_v 2
+        set prio_p 0
+    }  
+    if { $frametype_ == "B" } {
+        set type_v 3
+        set prio_p 0
+    }  
+    if { $frametype_ == "H" } {
+        set type_v 1
+        set prio_p 0
+    }
+    
+    puts  $trace_file_id "$time $length_ $type_v $prio_p $max_fragmented_size"
+    set pre_time $tmp2_
+}
+close $original_file_id
+close $trace_file_id
+set end_sim_time $tmp2_
+puts "$end_sim_time"
+set trace_file [new Tracefile]
+$trace_file filename $trace_file_name
+set video1 [new Application/Traffic/myEvalvid]
+$video1 attach-agent $udp1
+$video1 attach-tracefile $trace_file
+$video1 wired
+
+proc finish {} {
+        global ns nd udp1 null1
+        $ns flush-trace
+        close $nd
+        $udp1 closefile
+        $null1 closefile
+        puts "simulation completed"
+        exit 0
+}
+
+$ns at 0.0 "$video1 start"
+$ns at $end_sim_time "$video1 stop"
+$ns at [expr $end_sim_time + 1.0] "$null1 closefile"
+$ns at [expr $end_sim_time + 1.0] "finish"
+$ns run
