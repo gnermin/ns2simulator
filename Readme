@@ -1,8 +1,8 @@
-Fajl opisuje slijedeće korake:
+The file describes simulation steps
 
-1.  U prvom koraku se videodatoteka priprema za „simulacijski prijenos“, što se sastoji od obrade izvorne datoteke OK720.mp4 FFmpeg alatom u cilju postizanja istovjetnog redoslijeda I, P i B videoramova, odnosno istovjetnog eskperimenalnog GoP-a. Na ovaj način osigurava se da se degradacije izazvane u simulaciji poklope sa stvarnim smetnjama iz eksperimenta.  
-2.	U ovom koraku se izvrši komanda: ./MP4Box.exe –hint –mtu 1356 –fps 25 –add OK720.mp4 RTP70.mp4, odnosno videodatoteka OK720.mp4 priprema se za transport
-3.	U ovom koraku se kreira videotrace datoteka komandom: ./mp4trace.exe –F–s 192.168.1.1 12345 RTP720.mp4 > RTP720.st
-4.	Izvrši se: ns wired.tcl
-5.	U ovom koraku se poređenjem poslate datoteke (sd) i primljene datoteke (rd) dobije preneseni videosadržaj sa simuliranom greškom: ./etmp4.exe –F –0 sd rd RTP720.st RTP720.mp4 Greska.mp4
-6.	Nakon što se obradi videodatoteka RTP720 te dobije Greska.mp4, ista se poredi sa originalnom datotekom OK720.mp4 u VQMT aplikaciji u cilju dobijanja SSIM vrijednosti
+1.  In this step video is prepared for “simulation transmission”. It consists of processing source video file by FFMpeg tool in order to achieve the same I, P, and B frames order i.e. the same GoP as in the experimental case. In this way we provide matching between real degradation and degradation that must be generated in the simulation case [31]
+2.	In this step the next command must be performed: ./MP4Box.exe –hint –mtu 1356 –fps 25 –add OK720.mp4 RTP70.mp4. In this step video file OK720.mp4 is being prepared for delivering.
+3.	In this step we create video trace file by the next command: ./mp4trace.exe –F–s 192.168.1.1 12345 RTP720.mp4 > RTP720.st
+4.	In this step in NS2 we performed: ns wired.tcl
+5.	In this step we compare the sent video file with the received one in order to get the video content with disruption: ./etmp4.exe –F –0 sd rd RTP720.st RTP720.mp4 Greska.mp4
+6.	After processing of video file RTP720 we got Greska.mp4 and we need to compare it with the original video file OK720.mp4 by VQMT tool in order to get SSIM values.
