@@ -1,0 +1,8 @@
+Fajl opisuje slijedeće korake:
+
+1.  U prvom koraku se videodatoteka priprema za „simulacijski prijenos“, što se sastoji od obrade izvorne datoteke OK720.mp4 FFmpeg alatom u cilju postizanja istovjetnog redoslijeda I, P i B videoramova, odnosno istovjetnog eskperimenalnog GoP-a. Na ovaj način osigurava se da se degradacije izazvane u simulaciji poklope sa stvarnim smetnjama iz eksperimenta.  
+2.	U ovom koraku se izvrši komanda: ./MP4Box.exe –hint –mtu 1356 –fps 25 –add OK720.mp4 RTP70.mp4, odnosno videodatoteka OK720.mp4 priprema se za transport
+3.	U ovom koraku se kreira videotrace datoteka komandom: ./mp4trace.exe –F–s 192.168.1.1 12345 RTP720.mp4 > RTP720.st
+4.	Izvrši se: ns wired.tcl
+5.	U ovom koraku se poređenjem poslate datoteke (sd) i primljene datoteke (rd) dobije preneseni videosadržaj sa simuliranom greškom: ./etmp4.exe –F –0 sd rd RTP720.st RTP720.mp4 Greska.mp4
+6.	Nakon što se obradi videodatoteka RTP720 te dobije Greska.mp4, ista se poredi sa originalnom datotekom OK720.mp4 u VQMT aplikaciji u cilju dobijanja SSIM vrijednosti
